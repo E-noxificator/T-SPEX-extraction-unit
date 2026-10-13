@@ -287,8 +287,13 @@ class MainWindow(QMainWindow):
             # 020 — заголовок сложного теста
             # Формат: 020,success,type,pinout
             # -----------------------------------------
-            if code == "020":
+            if code == "020" and len(fields) == 4:
                 success = int(fields[1])
+
+                if success not in (0, 1):
+                    raise ValueError(
+                        "Признак успешности должен быть 0 или 1"
+                    )
 
                 # Начинается новый набор измерений
                 self.gummel_data.clear()
@@ -333,12 +338,6 @@ class MainWindow(QMainWindow):
                         "Сложное измерение не начато."
                     )
 
-                    QMessageBox.critical(
-                        self,
-                        "Ошибка измерения: промеряемый образец неисправен",
-                        self.serial.errorString()
-                    )
-
                 return
 
             # -----------------------------------------
@@ -372,6 +371,13 @@ class MainWindow(QMainWindow):
                     self.log_message(
                         "Сложное измерение завершено с ошибкой."
                     )
+
+                    QMessageBox.critical(
+                        self,
+                        "Ошибка измерения: промеряемый образец неисправен",
+                        self.serial.errorString()
+                    )
+
                 else:
                     raise ValueError(
                         f"Неизвестный статус завершения: {status}"
